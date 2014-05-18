@@ -1,8 +1,13 @@
-* Motivation
+* doc-search
+doc-search is a project which takes all doctors in styria, austria
+from an opendata data source, feeds it to flexiblesearch and makes it
+facet-searchable through a haskell web frontend using bootstrap.
+
+** Motivation
 The motivation was to play around with elasticsearch, especially
 facets and haskell.
 
-* Requirements
+** Requirements
 - A elastic search server running on localhost:9200 (which is
   default). I put it in project directory elasticsearch-1.0.0 which is
   within git ignore. It can be started with:
@@ -13,7 +18,7 @@ facets and haskell.
 - Geospacial data utilities, debian package "gdal-bin"
 - Some haskell libs, see hs files in webapp/
 
-* Data Source and License
+** Data Source and License
 - Data is not included in this repository, download and processing is
   automated in "ETL Process"
 - "Datenquelle: CC-BY-3.0-AT: Land Steiermark - data.steiermark.gv.at"
@@ -21,11 +26,11 @@ facets and haskell.
 - Downloaded from: http://data.steiermark.at/cms/beitrag/11822084/97108894/?AppInt_OGD_ID=36
 - Date of download: <2014-02-15 Sat>
 
-* ETL Process
+** ETL Process
 The ETL Process is automated in the following steps and can completely
 be done in org-mode by executing babel code blocks.
 
-** Download the data
+*** Download the data
 #+begin_src sh :results silent
 mkdir -p data/raw/
 cd data/raw/
@@ -34,20 +39,20 @@ unzip Niedergelassene_Aerzte.zip
 rm Niedergelassene_Aerzte.zip
 #+end_src
 
-** Extract feature collection from shape file
+*** Extract feature collection from shape file
 #+begin_src sh :results silent
 rm data/raw/doctors.json
 ogr2ogr -f geoJSON data/raw/doctors.json data/raw/Niedergelassene_Aerzte.shp
 #+end_src
 
-** Delete an existing index
+*** Delete an existing index
 Make sure elastic search is running, then execute:
 
 #+begin_src sh :results silent
 curl -XDELETE 'http://localhost:9200/doctors/'
 #+end_src
 
-** Set the default analyser to keyword
+*** Set the default analyser to keyword
 This treats string fields as a single term and does not split by whitespace.
 
 #+begin_src sh :results silent
@@ -64,7 +69,7 @@ curl -XPUT localhost:9200/doctors -d '{
 }'
 #+end_src
 
-** Transform into usable structured json and load to elasticsearch
+*** Transform into usable structured json and load to elasticsearch
 Be aware that this may take a while, depending on your hardware. When
 executing in org-mode this will block emacs.
 
@@ -73,7 +78,7 @@ cd data/
 ./load-to-elasticsearch.py
 #+end_src
 
-* Example Queries
+** Example Queries
 *** Match All
 #+begin_src sh :results output
 curl -X POST "http://localhost:9200/doctors/_search?pretty=true" -d '
@@ -172,7 +177,7 @@ curl -X POST "http://localhost:9200/doctors/_search?pretty=true" -d '
 '
 #+end_src
 
-* Run the haskell webapp
+** Run the haskell webapp
 #+BEGIN_EXAMPLE
 cd webapp
 runhaskell webapp.hs
@@ -181,12 +186,12 @@ runhaskell webapp.hs
 Now you should be able to access http://localhost:8000/
 Congratulations. You have the app running now.
 
-* Open Points
-** TODO Allow multiple facets to be selected
+** Open Points
+*** TODO Allow multiple facets to be selected
 Selecting multiple facets works, as the request parameters are
 processed, but link generation does not yet consider already selected
 facets, therefore selection is lost when a link is clicked.
 
-** TODO Map Integration
+*** TODO Map Integration
 As the map coordinates are contained in the json it would be great to
 add an openstreetmap component and show selected doctors.
