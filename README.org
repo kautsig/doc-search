@@ -1,6 +1,6 @@
 * doc-search
 doc-search is a project which takes all doctors in styria, austria
-from an opendata data source, feeds it to flexiblesearch and makes it
+from an opendata data source, feeds it to elasticsearch and makes it
 facet-searchable through a haskell web frontend using bootstrap.
 
 ** Motivation
